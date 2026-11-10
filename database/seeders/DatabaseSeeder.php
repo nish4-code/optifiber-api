@@ -3,23 +3,29 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\SmartOlt\SmartOltService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
+    public function run(SmartOltService $smartOltService): void
     {
-        // User::factory(10)->create();
+        User::updateOrCreate(
+            ['email' => 'admin@fiberplus.pe'],
+            [
+                'name' => 'Jerzy León (Admin)',
+                'role' => 'admin',
+                'password' => Hash::make('password'),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            FiberColorSeeder::class,
+            ZoneSeeder::class,
+            DemoNetworkSeeder::class,
         ]);
+
+        $smartOltService->syncToDatabase();
     }
 }

@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'smartolt' => [
+        'base_url' => rtrim(env('SMARTOLT_BASE_URL'), '/'),
+        'api_key' => env('SMARTOLT_API_KEY'),
+        'mock_mode' => (bool) env('SMARTOLT_MOCK_MODE', true),
+        'cache_ttl' => (int) env('SMARTOLT_CACHE_TTL', 300),
+    ],
+
 ];
