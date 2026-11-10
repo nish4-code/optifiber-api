@@ -34,7 +34,7 @@ class TrunkCable extends Model
             'buffer_count' => 'integer',
             'strands_per_buffer' => 'integer',
             'path' => 'array',
-            'length_km' => 'decimal:3',
+            'length_km' => 'float',
             'status' => NetworkStatus::class,
             'is_visible' => 'boolean',
         ];

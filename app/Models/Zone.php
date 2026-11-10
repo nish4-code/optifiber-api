@@ -21,8 +21,8 @@ class Zone extends Model
     protected function casts(): array
     {
         return [
-            'center_lat' => 'decimal:7',
-            'center_lng' => 'decimal:7',
+            'center_lat' => 'float',
+            'center_lng' => 'float',
         ];
     }
 
