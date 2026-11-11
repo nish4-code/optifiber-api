@@ -170,6 +170,36 @@ class DemoNetworkSeeder extends Seeder
             ]
         );
 
+        SpliceClosure::updateOrCreate(
+            ['code' => 'RES-01'],
+            [
+                'zone_id' => $zoneBolog?->id,
+                'name' => 'Reserva Poste Bolognesi 345',
+                'type' => ClosureType::Reserve,
+                'mount_type' => MountType::Pole,
+                'fiber_capacity' => 144,
+                'latitude' => -6.7712000,
+                'longitude' => -79.8402000,
+                'reserve_meters' => 30.0,
+                'status' => NetworkStatus::Active,
+            ]
+        );
+
+        SpliceClosure::updateOrCreate(
+            ['code' => 'RES-02'],
+            [
+                'zone_id' => $zoneBalta?->id,
+                'name' => 'Reserva Cámara Subterránea Av. Balta',
+                'type' => ClosureType::Reserve,
+                'mount_type' => MountType::Chamber,
+                'fiber_capacity' => 48,
+                'latitude' => -6.7752000,
+                'longitude' => -79.8438000,
+                'reserve_meters' => 20.0,
+                'status' => NetworkStatus::Active,
+            ]
+        );
+
         // 3. Cajas NAP
         $feederStrand1 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 1)->first();
         $feederStrand2 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 2)->first();

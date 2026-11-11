@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ClosureType;
 use App\Enums\CustomerStatus;
 use App\Enums\NetworkStatus;
 use App\Enums\PortStatus;
@@ -14,6 +15,7 @@ use App\Models\NetworkAlert;
 use App\Models\SmartOltOlt;
 use App\Models\SmartOltOnu;
 use App\Models\SpliceClosure;
+use App\Models\TrunkCable;
 use App\Models\Zone;
 use Illuminate\Http\JsonResponse;
 
@@ -30,7 +32,12 @@ class DashboardController extends Controller
         $portsOccupied = NapPort::where('status', PortStatus::Occupied)->count();
         $napOccupancy = $portsTotal > 0 ? round(($portsOccupied / $portsTotal) * 100, 1) : 0;
 
+        $zonesTotal = Zone::count();
+        $trunksTotal = TrunkCable::count();
+        $trunksKm = (float) TrunkCable::sum('length_km');
+
         $mufasTotal = SpliceClosure::count();
+        $reservesTotal = SpliceClosure::where('type', ClosureType::Reserve)->count();
         $mufasActivas = SpliceClosure::where('status', NetworkStatus::Active)->count();
         $mufasMant = SpliceClosure::where('status', NetworkStatus::Maintenance)->count();
         $mufasInactivas = SpliceClosure::where('status', NetworkStatus::Inactive)->count();
@@ -57,6 +64,16 @@ class DashboardController extends Controller
                 'olt_bandwidth_gbps' => $oltTraffic,
             ],
             'kpis' => [
+                'zones' => [
+                    'total' => $zonesTotal,
+                ],
+                'trunks' => [
+                    'total' => $trunksTotal,
+                    'total_km' => round($trunksKm, 2),
+                ],
+                'reserves' => [
+                    'total' => $reservesTotal,
+                ],
                 'naps' => [
                     'total' => $napTotal,
                     'occupancy_percentage' => $napOccupancy,
