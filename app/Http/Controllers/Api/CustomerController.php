@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\CustomerStatus;
 use App\Enums\PortStatus;
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerEvent;
@@ -44,7 +45,9 @@ class CustomerController extends Controller
             });
         }
 
-        $customers = $query->paginate(15)->through(function ($c) {
+        $perPage = min(max($request->integer('per_page', 15), 1), 100);
+        $paginator = $query->paginate($perPage);
+        $paginator->getCollection()->transform(function ($c) {
             return [
                 'id' => $c->id,
                 'code' => $c->code,
@@ -70,7 +73,7 @@ class CustomerController extends Controller
             ];
         });
 
-        return response()->json($customers);
+        return ApiResponseHelper::paginated('Abonados obtenidos.', $paginator)->send();
     }
 
     public function store(Request $request): JsonResponse
@@ -109,7 +112,7 @@ class CustomerController extends Controller
             'occurred_at' => now(),
         ]);
 
-        return response()->json($customer, 201);
+        return ApiResponseHelper::storeSuccess('Abonado', $customer)->send();
     }
 
     public function show(int $id): JsonResponse
@@ -121,7 +124,7 @@ class CustomerController extends Controller
             'events',
         ])->findOrFail($id);
 
-        return response()->json([
+        $dto = [
             'info' => [
                 'id' => $customer->id,
                 'code' => $customer->code,
@@ -159,14 +162,17 @@ class CustomerController extends Controller
                 'last_synced_at' => $customer->onu->last_synced_at?->toIso8601String(),
             ] : null,
             'events' => $customer->events,
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Ficha de abonado obtenida.', $dto)->send();
     }
 
     public function events(int $id): JsonResponse
     {
         $customer = Customer::findOrFail($id);
+        $events = $customer->events()->orderByDesc('occurred_at')->get();
 
-        return response()->json($customer->events()->orderByDesc('occurred_at')->get());
+        return ApiResponseHelper::returnSuccess('Historial de eventos del abonado.', $events)->send();
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -184,7 +190,7 @@ class CustomerController extends Controller
 
         $customer->update($validated);
 
-        return response()->json($customer);
+        return ApiResponseHelper::updateSuccess('Abonado', $customer)->send();
     }
 
     public function destroy(int $id): JsonResponse
@@ -197,6 +203,6 @@ class CustomerController extends Controller
 
         $customer->delete();
 
-        return response()->json(['message' => 'Cliente eliminado correctamente.']);
+        return ApiResponseHelper::destroySuccess('Abonado')->send();
     }
 }

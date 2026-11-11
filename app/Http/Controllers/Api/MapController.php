@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\FiberStrand;
@@ -82,7 +83,7 @@ class MapController extends Controller
                 });
         }
 
-        return response()->json($data);
+        return ApiResponseHelper::returnSuccess('Elementos cartográficos obtenidos.', $data)->send();
     }
 
     public function trace(int $strandId, FiberTopologyService $service): JsonResponse
@@ -90,6 +91,6 @@ class MapController extends Controller
         $strand = FiberStrand::findOrFail($strandId);
         $result = $service->traceOpticalPath($strand);
 
-        return response()->json($result);
+        return ApiResponseHelper::returnSuccess('Traza óptica calculada.', $result)->send();
     }
 }

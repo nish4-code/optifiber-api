@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Zone;
 use Illuminate\Http\JsonResponse;
@@ -11,7 +12,9 @@ class ZoneController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Zone::withCount(['trunkCables', 'napBoxes', 'spliceClosures', 'customers'])->get());
+        $zones = Zone::withCount(['trunkCables', 'napBoxes', 'spliceClosures', 'customers'])->get();
+
+        return ApiResponseHelper::returnSuccess('Zonas obtenidas correctamente.', $zones)->send();
     }
 
     public function store(Request $request): JsonResponse
@@ -26,14 +29,14 @@ class ZoneController extends Controller
 
         $zone = Zone::create($validated);
 
-        return response()->json($zone, 201);
+        return ApiResponseHelper::storeSuccess('Zona', $zone)->send();
     }
 
     public function show(int $id): JsonResponse
     {
         $zone = Zone::with(['trunkCables', 'napBoxes', 'spliceClosures'])->findOrFail($id);
 
-        return response()->json($zone);
+        return ApiResponseHelper::returnSuccess('Zona obtenida correctamente.', $zone)->send();
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -49,7 +52,7 @@ class ZoneController extends Controller
 
         $zone->update($validated);
 
-        return response()->json($zone);
+        return ApiResponseHelper::updateSuccess('Zona', $zone)->send();
     }
 
     public function destroy(int $id): JsonResponse
@@ -57,6 +60,6 @@ class ZoneController extends Controller
         $zone = Zone::findOrFail($id);
         $zone->delete();
 
-        return response()->json(['message' => 'Zona eliminada correctamente.']);
+        return ApiResponseHelper::destroySuccess('Zona')->send();
     }
 }

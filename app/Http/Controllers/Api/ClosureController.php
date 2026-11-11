@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\ClosureType;
 use App\Enums\MountType;
 use App\Enums\NetworkStatus;
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\FiberSplice;
 use App\Models\SpliceClosure;
@@ -30,7 +31,10 @@ class ClosureController extends Controller
             $query->where('type', $request->input('type'));
         }
 
-        return response()->json($query->paginate(15));
+        $perPage = min(max($request->integer('per_page', 15), 1), 100);
+        $paginator = $query->paginate($perPage);
+
+        return ApiResponseHelper::paginated('Mufas de empalme obtenidas.', $paginator)->send();
     }
 
     public function store(Request $request): JsonResponse
@@ -56,14 +60,14 @@ class ClosureController extends Controller
             'status' => $validated['status'] ?? NetworkStatus::Active,
         ]);
 
-        return response()->json($closure, 201);
+        return ApiResponseHelper::storeSuccess('Mufa de empalme', $closure)->send();
     }
 
     public function show(int $id): JsonResponse
     {
         $closure = SpliceClosure::with('zone')->findOrFail($id);
 
-        return response()->json($closure);
+        return ApiResponseHelper::returnSuccess('Mufa de empalme obtenida.', $closure)->send();
     }
 
     public function splices(int $id): JsonResponse
@@ -83,7 +87,7 @@ class ClosureController extends Controller
         $availableCount = max(0, $totalCapacity - $fusedCount);
         $avgLoss = $closure->splices->avg('loss_db');
 
-        return response()->json([
+        $dto = [
             'closure' => [
                 'id' => $closure->id,
                 'code' => $closure->code,
@@ -133,7 +137,9 @@ class ClosureController extends Controller
                     'status' => $s->status->value,
                 ];
             }),
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Matriz de fusiones obtenida.', $dto)->send();
     }
 
     public function storeSplice(Request $request, int $id): JsonResponse
@@ -163,7 +169,7 @@ class ClosureController extends Controller
             ]
         );
 
-        return response()->json($splice, 201);
+        return ApiResponseHelper::storeSuccess('Fusión de fibra', $splice)->send();
     }
 
     public function deleteSplice(int $closureId, int $spliceId): JsonResponse
@@ -171,7 +177,7 @@ class ClosureController extends Controller
         $splice = FiberSplice::where('splice_closure_id', $closureId)->where('id', $spliceId)->firstOrFail();
         $splice->delete();
 
-        return response()->json(['message' => 'Fusión eliminada correctamente.']);
+        return ApiResponseHelper::destroySuccess('Fusión de fibra')->send();
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -191,7 +197,7 @@ class ClosureController extends Controller
 
         $closure->update($validated);
 
-        return response()->json($closure);
+        return ApiResponseHelper::updateSuccess('Mufa de empalme', $closure)->send();
     }
 
     public function destroy(int $id): JsonResponse
@@ -199,6 +205,6 @@ class ClosureController extends Controller
         $closure = SpliceClosure::findOrFail($id);
         $closure->delete();
 
-        return response()->json(['message' => 'Mufa eliminada correctamente.']);
+        return ApiResponseHelper::destroySuccess('Mufa de empalme')->send();
     }
 }

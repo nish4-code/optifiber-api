@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\NetworkStatus;
 use App\Enums\SplitterRatio;
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\NapBox;
 use App\Services\FiberTopologyService;
@@ -35,7 +36,9 @@ class NapController extends Controller
             });
         }
 
-        $naps = $query->paginate(15)->through(function ($nap) {
+        $perPage = min(max($request->integer('per_page', 15), 1), 100);
+        $paginator = $query->paginate($perPage);
+        $paginator->getCollection()->transform(function ($nap) {
             return [
                 'id' => $nap->id,
                 'code' => $nap->code,
@@ -57,7 +60,7 @@ class NapController extends Controller
             ];
         });
 
-        return response()->json($naps);
+        return ApiResponseHelper::paginated('Cajas NAP obtenidas.', $paginator)->send();
     }
 
     public function store(Request $request, FiberTopologyService $topologyService, NetworkAlertService $alertService): JsonResponse
@@ -88,14 +91,14 @@ class NapController extends Controller
         $topologyService->generateNapPorts($nap);
         $alertService->evaluateNapCapacity($nap);
 
-        return response()->json($nap->load('ports'), 201);
+        return ApiResponseHelper::storeSuccess('Caja NAP', $nap->load('ports'))->send();
     }
 
     public function show(int $id): JsonResponse
     {
         $nap = NapBox::with(['zone', 'ports.customer', 'feederStrand.color', 'feederStrand.buffer.color'])->findOrFail($id);
 
-        return response()->json([
+        $dto = [
             'id' => $nap->id,
             'code' => $nap->code,
             'name' => $nap->name,
@@ -127,7 +130,9 @@ class NapController extends Controller
                     ] : null,
                 ];
             }),
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Caja NAP obtenida.', $dto)->send();
     }
 
     public function ports(int $id): JsonResponse
@@ -135,11 +140,13 @@ class NapController extends Controller
         $nap = NapBox::findOrFail($id);
         $ports = $nap->ports()->with('customer')->orderBy('port_number')->get();
 
-        return response()->json([
+        $dto = [
             'nap_code' => $nap->code,
             'port_capacity' => $nap->port_capacity,
             'ports' => $ports,
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Puertos de la caja NAP obtenidos.', $dto)->send();
     }
 
     public function update(Request $request, int $id, NetworkAlertService $alertService): JsonResponse
@@ -162,7 +169,7 @@ class NapController extends Controller
         $nap->update($validated);
         $alertService->evaluateNapCapacity($nap);
 
-        return response()->json($nap);
+        return ApiResponseHelper::updateSuccess('Caja NAP', $nap)->send();
     }
 
     public function destroy(int $id): JsonResponse
@@ -170,6 +177,6 @@ class NapController extends Controller
         $nap = NapBox::findOrFail($id);
         $nap->delete();
 
-        return response()->json(['message' => 'Caja NAP eliminada correctamente.']);
+        return ApiResponseHelper::destroySuccess('Caja NAP')->send();
     }
 }

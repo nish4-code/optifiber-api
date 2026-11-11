@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -28,7 +29,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
+        return ApiResponseHelper::returnSuccess('Inicio de sesión exitoso.', [
             'token' => $token,
             'user' => [
                 'id' => $user->id,
@@ -36,7 +37,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ],
-        ]);
+        ])->send();
     }
 
     public function register(Request $request): JsonResponse
@@ -56,7 +57,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
+        return ApiResponseHelper::created('Usuario registrado correctamente.', [
             'token' => $token,
             'user' => [
                 'id' => $user->id,
@@ -64,20 +65,20 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ],
-        ], 201);
+        ])->send();
     }
 
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Sesión cerrada correctamente.']);
+        return ApiResponseHelper::returnSuccess('Sesión cerrada correctamente.')->send();
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
+        return ApiResponseHelper::returnSuccess('Perfil obtenido correctamente.', [
             'user' => $request->user(),
-        ]);
+        ])->send();
     }
 }

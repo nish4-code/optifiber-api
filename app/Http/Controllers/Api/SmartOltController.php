@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\SmartOltOnu;
 use App\Services\SmartOlt\SmartOltService;
@@ -27,7 +28,10 @@ class SmartOltController extends Controller
             });
         }
 
-        return response()->json($query->paginate(20));
+        $perPage = min(max($request->integer('per_page', 20), 1), 100);
+        $paginator = $query->paginate($perPage);
+
+        return ApiResponseHelper::paginated('ONUs de SmartOLT obtenidas.', $paginator)->send();
     }
 
     public function signal(string $externalId, SmartOltService $service): JsonResponse
@@ -35,19 +39,16 @@ class SmartOltController extends Controller
         $signal = $service->getOnuSignal($externalId);
 
         if (! $signal) {
-            return response()->json(['message' => 'No se pudo obtener la señal de la ONU.'], 404);
+            return ApiResponseHelper::notFound('Señal de ONU')->send();
         }
 
-        return response()->json($signal);
+        return ApiResponseHelper::returnSuccess('Señal óptica de ONU obtenida.', $signal)->send();
     }
 
     public function sync(SmartOltService $service): JsonResponse
     {
         $result = $service->syncToDatabase();
 
-        return response()->json([
-            'message' => 'Sincronización con SmartOLT ejecutada exitosamente.',
-            'summary' => $result,
-        ]);
+        return ApiResponseHelper::returnSuccess('Sincronización con SmartOLT ejecutada exitosamente.', $result)->send();
     }
 }

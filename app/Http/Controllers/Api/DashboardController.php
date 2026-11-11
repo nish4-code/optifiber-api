@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\CustomerStatus;
 use App\Enums\NetworkStatus;
 use App\Enums\PortStatus;
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\NapBox;
@@ -49,7 +50,7 @@ class DashboardController extends Controller
         $olt = SmartOltOlt::first();
         $oltTraffic = $olt?->metrics['total_bandwidth_gbps'] ?? 9.84;
 
-        return response()->json([
+        $data = [
             'telemetry' => [
                 'system_online' => true,
                 'average_attenuation_dbm' => $avgAttenuation ? round($avgAttenuation, 1) : -19.4,
@@ -87,7 +88,9 @@ class DashboardController extends Controller
                     'attention_required' => $alertsActive > 0,
                 ],
             ],
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Resumen de telemetría y KPIs obtenido.', $data)->send();
     }
 
     public function zonesCapacity(): JsonResponse
@@ -113,7 +116,7 @@ class DashboardController extends Controller
             ];
         });
 
-        return response()->json(['zones' => $zones]);
+        return ApiResponseHelper::returnSuccess('Capacidad por zonas obtenida.', ['zones' => $zones])->send();
     }
 
     public function latestCustomers(): JsonResponse
@@ -135,6 +138,6 @@ class DashboardController extends Controller
                 ];
             });
 
-        return response()->json(['customers' => $customers]);
+        return ApiResponseHelper::returnSuccess('Últimos abonados obtenidos.', ['customers' => $customers])->send();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\NetworkStatus;
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\TrunkCable;
 use App\Services\FiberTopologyService;
@@ -20,7 +21,10 @@ class TrunkController extends Controller
             $query->where('zone_id', $request->input('zone_id'));
         }
 
-        return response()->json($query->paginate(15));
+        $perPage = min(max($request->integer('per_page', 15), 1), 100);
+        $paginator = $query->paginate($perPage);
+
+        return ApiResponseHelper::paginated('Cables troncales obtenidos.', $paginator)->send();
     }
 
     public function store(Request $request, FiberTopologyService $topologyService): JsonResponse
@@ -51,14 +55,14 @@ class TrunkController extends Controller
 
         $topologyService->generateBuffersAndStrands($cable);
 
-        return response()->json($cable->load('buffers.strands.color'), 201);
+        return ApiResponseHelper::storeSuccess('Cable troncal', $cable->load('buffers.strands.color'))->send();
     }
 
     public function show(int $id): JsonResponse
     {
         $cable = TrunkCable::with(['zone', 'buffers.color', 'buffers.strands.color'])->findOrFail($id);
 
-        return response()->json($cable);
+        return ApiResponseHelper::returnSuccess('Cable troncal obtenido.', $cable)->send();
     }
 
     public function strands(int $id): JsonResponse
@@ -70,7 +74,7 @@ class TrunkController extends Controller
             'buffers.strands.splicesAsIn.napBox',
         ])->findOrFail($id);
 
-        return response()->json([
+        $dto = [
             'cable_id' => $cable->id,
             'code' => $cable->code,
             'name' => $cable->name,
@@ -90,7 +94,9 @@ class TrunkController extends Controller
                     }),
                 ];
             }),
-        ]);
+        ];
+
+        return ApiResponseHelper::returnSuccess('Hilos de fibra obtenidos.', $dto)->send();
     }
 
     public function update(Request $request, int $id): JsonResponse
@@ -109,7 +115,7 @@ class TrunkController extends Controller
 
         $cable->update($validated);
 
-        return response()->json($cable);
+        return ApiResponseHelper::updateSuccess('Cable troncal', $cable)->send();
     }
 
     public function destroy(int $id): JsonResponse
@@ -117,6 +123,6 @@ class TrunkController extends Controller
         $cable = TrunkCable::findOrFail($id);
         $cable->delete();
 
-        return response()->json(['message' => 'Cable troncal eliminado correctamente.']);
+        return ApiResponseHelper::destroySuccess('Cable troncal')->send();
     }
 }

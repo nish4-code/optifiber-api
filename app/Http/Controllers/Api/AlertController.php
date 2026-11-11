@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helper\ApiResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Models\NetworkAlert;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +26,10 @@ class AlertController extends Controller
             $query->where('type', $request->input('type'));
         }
 
-        $alerts = $query->paginate(15);
+        $perPage = min(max($request->integer('per_page', 15), 1), 100);
+        $alerts = $query->paginate($perPage);
 
-        return response()->json($alerts);
+        return ApiResponseHelper::paginated('Alertas de red obtenidas.', $alerts)->send();
     }
 
     public function resolve(int $id): JsonResponse
@@ -35,9 +37,6 @@ class AlertController extends Controller
         $alert = NetworkAlert::findOrFail($id);
         $alert->update(['resolved_at' => now()]);
 
-        return response()->json([
-            'message' => 'Alerta marcada como resuelta.',
-            'alert' => $alert,
-        ]);
+        return ApiResponseHelper::returnSuccess('Alerta marcada como resuelta.', $alert)->send();
     }
 }
