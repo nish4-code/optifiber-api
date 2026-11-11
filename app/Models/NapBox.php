@@ -37,8 +37,8 @@ class NapBox extends Model
         return [
             'splitter_ratio' => SplitterRatio::class,
             'port_capacity' => 'integer',
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
+            'latitude' => 'float',
+            'longitude' => 'float',
             'status' => NetworkStatus::class,
         ];
     }

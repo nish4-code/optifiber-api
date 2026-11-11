@@ -36,8 +36,8 @@ class SmartOltOnu extends Model
     {
         return [
             'onu_number' => 'integer',
-            'signal_rx' => 'decimal:2',
-            'signal_tx' => 'decimal:2',
+            'signal_rx' => 'float',
+            'signal_tx' => 'float',
             'distance_m' => 'integer',
             'last_synced_at' => 'datetime',
         ];

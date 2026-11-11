@@ -35,9 +35,9 @@ class SpliceClosure extends Model
             'type' => ClosureType::class,
             'mount_type' => MountType::class,
             'fiber_capacity' => 'integer',
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-            'reserve_meters' => 'decimal:2',
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'reserve_meters' => 'float',
             'status' => NetworkStatus::class,
         ];
     }

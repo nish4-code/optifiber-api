@@ -140,6 +140,36 @@ class DemoNetworkSeeder extends Seeder
             ]
         );
 
+        $mufa3 = SpliceClosure::updateOrCreate(
+            ['code' => 'MUFA-03'],
+            [
+                'zone_id' => $zoneBolog?->id,
+                'name' => 'Mufa Troncal San José 96',
+                'type' => ClosureType::Splice,
+                'mount_type' => MountType::Pole,
+                'fiber_capacity' => 96,
+                'latitude' => -6.7720000,
+                'longitude' => -79.8410000,
+                'reserve_meters' => 15.0,
+                'status' => NetworkStatus::Active,
+            ]
+        );
+
+        $mufa4 = SpliceClosure::updateOrCreate(
+            ['code' => 'MUFA-04'],
+            [
+                'zone_id' => $zoneKish?->id,
+                'name' => 'Mufa Matriz Central Kishuara',
+                'type' => ClosureType::Splice,
+                'mount_type' => MountType::Chamber,
+                'fiber_capacity' => 144,
+                'latitude' => -13.6540000,
+                'longitude' => -73.3440000,
+                'reserve_meters' => 25.0,
+                'status' => NetworkStatus::Active,
+            ]
+        );
+
         // 3. Cajas NAP
         $feederStrand1 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 1)->first();
         $feederStrand2 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 2)->first();
@@ -189,6 +219,86 @@ class DemoNetworkSeeder extends Seeder
         );
         $topologyService->generateNapPorts($nap5);
 
+        // NAPs adicionales para catálogo completo
+        $feederStrand3 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 3)->first();
+        $feederStrand4 = FiberStrand::where('trunk_cable_id', $trunk1->id)->where('global_number', 4)->first();
+        $feederStrand5 = FiberStrand::where('trunk_cable_id', $trunk2->id)->where('global_number', 1)->first();
+
+        $nap1 = NapBox::updateOrCreate(
+            ['code' => 'NAP-01'],
+            [
+                'zone_id' => $zoneBolog?->id,
+                'name' => 'Bolognesi esq. San José',
+                'splitter_ratio' => SplitterRatio::Ratio1x8,
+                'port_capacity' => 8,
+                'address' => 'Jr. Bolognesi 345, Chiclayo',
+                'latitude' => -6.7715000,
+                'longitude' => -79.8405000,
+                'feeder_strand_id' => $feederStrand3?->id,
+                'map_color' => '#10B981',
+                'map_icon' => 'nap',
+                'status' => NetworkStatus::Active,
+                'notes' => 'Caja terminal principal San José',
+            ]
+        );
+        $topologyService->generateNapPorts($nap1);
+
+        $nap2 = NapBox::updateOrCreate(
+            ['code' => 'NAP-02'],
+            [
+                'zone_id' => $zoneBolog?->id,
+                'name' => 'Bolognesi / Av. Saenz Peña',
+                'splitter_ratio' => SplitterRatio::Ratio1x16,
+                'port_capacity' => 16,
+                'address' => 'Jr. Bolognesi 580, Chiclayo',
+                'latitude' => -6.7738000,
+                'longitude' => -79.8428000,
+                'feeder_strand_id' => $feederStrand4?->id,
+                'map_color' => '#10B981',
+                'map_icon' => 'nap',
+                'status' => NetworkStatus::Active,
+                'notes' => 'Splitter 1x16 de alta densidad',
+            ]
+        );
+        $topologyService->generateNapPorts($nap2);
+
+        $nap3 = NapBox::updateOrCreate(
+            ['code' => 'NAP-03'],
+            [
+                'zone_id' => $zoneBalta?->id,
+                'name' => 'Av. Balta Frente CC Boulevard',
+                'splitter_ratio' => SplitterRatio::Ratio1x8,
+                'port_capacity' => 8,
+                'address' => 'Av. Balta 720, Chiclayo',
+                'latitude' => -6.7765000,
+                'longitude' => -79.8445000,
+                'feeder_strand_id' => $feederStrand5?->id,
+                'map_color' => '#EF4444',
+                'map_icon' => 'nap',
+                'status' => NetworkStatus::Alert,
+                'notes' => 'Caja saturada al 100% de puertos',
+            ]
+        );
+        $topologyService->generateNapPorts($nap3);
+
+        $nap6 = NapBox::updateOrCreate(
+            ['code' => 'NAP-06'],
+            [
+                'zone_id' => $zoneKish?->id,
+                'name' => 'Plaza Principal Kishuara',
+                'splitter_ratio' => SplitterRatio::Ratio1x8,
+                'port_capacity' => 8,
+                'address' => 'Plaza de Armas S/N, Kishuara, Apurímac',
+                'latitude' => -13.6550000,
+                'longitude' => -73.3450000,
+                'map_color' => '#3B82F6',
+                'map_icon' => 'nap',
+                'status' => NetworkStatus::Maintenance,
+                'notes' => 'Mantenimiento preventivo programado',
+            ]
+        );
+        $topologyService->generateNapPorts($nap6);
+
         // 4. Fusiones de Hilos (Matriz)
         if ($feederStrand1) {
             FiberSplice::updateOrCreate(
@@ -217,18 +327,25 @@ class DemoNetworkSeeder extends Seeder
         // 5. Clientes de Prueba (conectados a puertos NAP y SmartOLT)
         $nap4Ports = NapPort::where('nap_box_id', $nap4->id)->orderBy('port_number')->get();
         $nap5Ports = NapPort::where('nap_box_id', $nap5->id)->orderBy('port_number')->get();
+        $nap1Ports = NapPort::where('nap_box_id', $nap1->id)->orderBy('port_number')->get();
+        $nap2Ports = NapPort::where('nap_box_id', $nap2->id)->orderBy('port_number')->get();
+        $nap3Ports = NapPort::where('nap_box_id', $nap3->id)->orderBy('port_number')->get();
 
         $demoCustomers = [
-            ['code' => 'C-001', 'name' => 'Juan Pérez García', 'doc' => '45892314', 'phone' => '987 654 321', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(0), 'onu_id' => 'onu_hw_001'],
-            ['code' => 'C-002', 'name' => 'María García Quispe', 'doc' => '70124589', 'phone' => '912 345 678', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(1), 'onu_id' => 'onu_hw_002'],
-            ['code' => 'C-003', 'name' => 'Carlos López Mendoza', 'doc' => '10235478', 'phone' => '998 776 022', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(2), 'onu_id' => 'onu_hw_003'],
-            ['code' => 'C-004', 'name' => 'Ana Torres Ramírez', 'doc' => '44879512', 'phone' => '901 223 445', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(3), 'onu_id' => 'onu_hw_004'],
-            ['code' => 'C-005', 'name' => 'Jorge Vargas Llacta', 'doc' => '41258963', 'phone' => '944 556 778', 'plan' => '200 Mbps', 'port' => $nap4Ports->get(4), 'onu_id' => 'onu_hw_005'],
-            ['code' => 'C-006', 'name' => 'Rosa Flores León', 'doc' => '72365412', 'phone' => '955 667 889', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(5), 'onu_id' => 'onu_hw_006'],
-            ['code' => 'C-007', 'name' => 'Luis Mendoza Castro', 'doc' => '09852147', 'phone' => '966 778 990', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(6), 'onu_id' => 'onu_hw_007'], // 7mo puerto ocupado en NAP-04 (87.5% - Alerta)
-            ['code' => 'C-008', 'name' => 'Carmen Quispe Solano', 'doc' => '47852369', 'phone' => '977 889 001', 'plan' => '100 Mbps', 'port' => $nap5Ports->get(0), 'onu_id' => 'onu_hw_008'],
-            ['code' => 'C-009', 'name' => 'Pedro Solano Ramos', 'doc' => '48963254', 'phone' => '988 990 112', 'plan' => '200 Mbps', 'port' => $nap5Ports->get(1), 'onu_id' => 'onu_hw_009'],
-            ['code' => 'C-010', 'name' => 'Lucía Ramos Vega', 'doc' => '71452369', 'phone' => '999 001 223', 'plan' => '50 Mbps', 'port' => $nap5Ports->get(2), 'onu_id' => 'onu_hw_010'],
+            ['code' => 'C-001', 'name' => 'Juan Pérez García', 'doc' => '45892314', 'phone' => '987 654 321', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(0), 'onu_id' => 'onu_hw_001', 'status' => CustomerStatus::Active],
+            ['code' => 'C-002', 'name' => 'María García Quispe', 'doc' => '70124589', 'phone' => '912 345 678', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(1), 'onu_id' => 'onu_hw_002', 'status' => CustomerStatus::Active],
+            ['code' => 'C-003', 'name' => 'Carlos López Mendoza', 'doc' => '10235478', 'phone' => '998 776 022', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(2), 'onu_id' => 'onu_hw_003', 'status' => CustomerStatus::Active],
+            ['code' => 'C-004', 'name' => 'Ana Torres Ramírez', 'doc' => '44879512', 'phone' => '901 223 445', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(3), 'onu_id' => 'onu_hw_004', 'status' => CustomerStatus::Active],
+            ['code' => 'C-005', 'name' => 'Jorge Vargas Llacta', 'doc' => '41258963', 'phone' => '944 556 778', 'plan' => '200 Mbps', 'port' => $nap4Ports->get(4), 'onu_id' => 'onu_hw_005', 'status' => CustomerStatus::Active],
+            ['code' => 'C-006', 'name' => 'Rosa Flores León', 'doc' => '72365412', 'phone' => '955 667 889', 'plan' => '100 Mbps', 'port' => $nap4Ports->get(5), 'onu_id' => 'onu_hw_006', 'status' => CustomerStatus::Active],
+            ['code' => 'C-007', 'name' => 'Luis Mendoza Castro', 'doc' => '09852147', 'phone' => '966 778 990', 'plan' => '50 Mbps', 'port' => $nap4Ports->get(6), 'onu_id' => 'onu_hw_007', 'status' => CustomerStatus::Active], // 7mo puerto ocupado en NAP-04 (87.5% - Alerta)
+            ['code' => 'C-008', 'name' => 'Carmen Quispe Solano', 'doc' => '47852369', 'phone' => '977 889 001', 'plan' => '100 Mbps', 'port' => $nap5Ports->get(0), 'onu_id' => 'onu_hw_008', 'status' => CustomerStatus::Active],
+            ['code' => 'C-009', 'name' => 'Pedro Solano Ramos', 'doc' => '48963254', 'phone' => '988 990 112', 'plan' => '200 Mbps', 'port' => $nap5Ports->get(1), 'onu_id' => 'onu_hw_009', 'status' => CustomerStatus::Active],
+            ['code' => 'C-010', 'name' => 'Lucía Ramos Vega', 'doc' => '71452369', 'phone' => '999 001 223', 'plan' => '50 Mbps', 'port' => $nap5Ports->get(2), 'onu_id' => 'onu_hw_010', 'status' => CustomerStatus::Active],
+            ['code' => 'C-011', 'name' => 'Ana Belén Silva', 'doc' => '73215498', 'phone' => '944 112 334', 'plan' => '100 Mbps', 'port' => $nap1Ports->get(0), 'onu_id' => null, 'status' => CustomerStatus::Pending],
+            ['code' => 'C-012', 'name' => 'Roberto Chang Díaz', 'doc' => '08745123', 'phone' => '955 223 445', 'plan' => '200 Mbps', 'port' => $nap2Ports->get(0), 'onu_id' => null, 'status' => CustomerStatus::Suspended],
+            ['code' => 'C-013', 'name' => 'Diana Morales Cueva', 'doc' => '46852179', 'phone' => '966 334 556', 'plan' => '50 Mbps', 'port' => $nap2Ports->get(1), 'onu_id' => null, 'status' => CustomerStatus::Active],
+            ['code' => 'C-014', 'name' => 'Javier Espinoza Paz', 'doc' => '70145896', 'phone' => '977 445 667', 'plan' => '100 Mbps', 'port' => $nap3Ports->get(0), 'onu_id' => null, 'status' => CustomerStatus::Active],
         ];
 
         foreach ($demoCustomers as $c) {
@@ -250,7 +367,7 @@ class DemoNetworkSeeder extends Seeder
                     'plan' => $c['plan'],
                     'nap_port_id' => $port?->id,
                     'smartolt_onu_external_id' => $c['onu_id'],
-                    'status' => CustomerStatus::Active,
+                    'status' => $c['status'] ?? CustomerStatus::Active,
                     'installed_at' => now()->subDays(rand(5, 60)),
                 ]
             );
@@ -269,7 +386,11 @@ class DemoNetworkSeeder extends Seeder
         }
 
         // Evaluar alertas en NAPs
+        $alertService->evaluateNapCapacity($nap1);
+        $alertService->evaluateNapCapacity($nap2);
+        $alertService->evaluateNapCapacity($nap3);
         $alertService->evaluateNapCapacity($nap4);
         $alertService->evaluateNapCapacity($nap5);
+        $alertService->evaluateNapCapacity($nap6);
     }
 }

@@ -25,7 +25,7 @@ class FiberSplice extends Model
     {
         return [
             'tray_number' => 'integer',
-            'loss_db' => 'decimal:2',
+            'loss_db' => 'float',
             'status' => NetworkStatus::class,
         ];
     }
