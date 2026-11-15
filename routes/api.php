@@ -62,6 +62,7 @@ Route::prefix('smartolt')->group(function () {
         Route::get('presets', [OnuController::class, 'authorizationPresets']);
         Route::get('sn/{sn}', [OnuController::class, 'showBySn']);
         Route::get('{id}', [OnuController::class, 'show']);
+        Route::get('{id}/trace', [OnuController::class, 'trace']);
         Route::get('{id}/signal', [OnuController::class, 'signal']);
         Route::get('{id}/status', [OnuController::class, 'status']);
         Route::get('{id}/status-history', [OnuController::class, 'statusHistory']);

@@ -159,6 +159,7 @@ Esta documentación técnica detalla exhaustivamente todos los módulos y endpoi
 | `GET` | `/smartolt/onus/presets?olt_id=1` | Presets de autorización preconfigurados. |
 | `GET` | `/smartolt/onus/sn/{sn}` | Consulta directa de ONU por número de serie (12 car.). |
 | `GET` | `/smartolt/onus/{id}` | Ficha completa del abonado por ID externo. |
+| `GET` | `/smartolt/onus/{id}/trace` | Trazado óptico en mapa: Conexión Cliente -> Caja NAP -> Puerto PON en OLT (con polilínea). |
 | `GET` | `/smartolt/onus/{id}/signal` | Potencia óptica RX/TX en vivo (1310/1490 nm). |
 | `GET` | `/smartolt/onus/{id}/status` | Estado operativo (Online, LOS, PowerFail). |
 | `GET` | `/smartolt/onus/{id}/status-history` | Historial de caídas y reconexiones de la ONU. |

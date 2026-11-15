@@ -26,11 +26,15 @@ class SmartOltOdb extends Model
         'pon_port',
         'total_ports',
         'used_ports',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
         'total_ports' => 'integer',
         'used_ports' => 'integer',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     public function zone(): BelongsTo

@@ -25,6 +25,8 @@ class SmartOltOlt extends Model
         'telnet_port',
         'snmp_port',
         'status',
+        'latitude',
+        'longitude',
         'metrics',
         'last_synced_at',
     ];
@@ -32,6 +34,8 @@ class SmartOltOlt extends Model
     protected $casts = [
         'telnet_port' => 'integer',
         'snmp_port' => 'integer',
+        'latitude' => 'float',
+        'longitude' => 'float',
         'metrics' => 'array',
         'last_synced_at' => 'datetime',
     ];

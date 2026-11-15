@@ -27,6 +27,8 @@ class SmartOltSeeder extends Seeder
                 'telnet_port' => 2323,
                 'snmp_port' => 2161,
                 'status' => 'online',
+                'latitude' => -6.76200,
+                'longitude' => -79.83500,
                 'metrics' => [
                     'cpu_usage' => 16,
                     'memory_usage' => 32,
@@ -43,6 +45,8 @@ class SmartOltSeeder extends Seeder
                 'telnet_port' => 2323,
                 'snmp_port' => 2161,
                 'status' => 'online',
+                'latitude' => -6.76200,
+                'longitude' => -79.83500,
                 'metrics' => [
                     'cpu_usage' => 22,
                     'memory_usage' => 45,
@@ -59,6 +63,8 @@ class SmartOltSeeder extends Seeder
                 'telnet_port' => 2323,
                 'snmp_port' => 2161,
                 'status' => 'online',
+                'latitude' => -6.76200,
+                'longitude' => -79.83500,
                 'metrics' => [
                     'cpu_usage' => 11,
                     'memory_usage' => 24,
@@ -75,6 +81,8 @@ class SmartOltSeeder extends Seeder
                 'telnet_port' => 2323,
                 'snmp_port' => 2161,
                 'status' => 'online',
+                'latitude' => -6.76200,
+                'longitude' => -79.83500,
                 'metrics' => [
                     'cpu_usage' => 8,
                     'memory_usage' => 19,
@@ -147,6 +155,8 @@ class SmartOltSeeder extends Seeder
                     'pon_port' => "0/{$boardNum}/{$portNum}",
                     'total_ports' => 16,
                     'used_ports' => rand(6, 15),
+                    'latitude' => round(-6.75200 - fmod($i * 0.0018, 0.075), 6),
+                    'longitude' => round(-79.82500 - fmod($i * 0.0022, 0.090), 6),
                 ]
             );
         }

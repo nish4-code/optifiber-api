@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedInteger('telnet_port')->nullable();
             $table->unsignedInteger('snmp_port')->nullable();
             $table->string('status', 30)->default('online');
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->jsonb('metrics')->nullable();
             $table->timestampTz('last_synced_at')->nullable();
             $table->timestampsTz();
@@ -41,6 +43,8 @@ return new class extends Migration
             $table->string('pon_port', 50)->nullable();
             $table->unsignedSmallInteger('total_ports')->default(16);
             $table->unsignedSmallInteger('used_ports')->default(0);
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->timestampsTz();
         });
 

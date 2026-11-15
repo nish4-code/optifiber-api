@@ -135,6 +135,93 @@ class OnuController extends Controller
         return ApiResponse::success(new OnuResource($onu));
     }
 
+    public function trace(string $id): JsonResponse
+    {
+        $onu = SmartOltOnu::with(['odb.olt', 'odb.zone', 'olt'])
+            ->where('unique_external_id', $id)
+            ->orWhere('id', $id)
+            ->first();
+
+        if ($onu === null) {
+            return ApiResponse::notFound('ONU');
+        }
+
+        $odb = $onu->odb;
+        $olt = $onu->olt ?? $odb?->olt;
+
+        $hops = [];
+        $polyline = [];
+
+        if ($onu->latitude && $onu->longitude) {
+            $hops[] = [
+                'type' => 'onu',
+                'id' => $onu->id,
+                'unique_external_id' => $onu->unique_external_id,
+                'label' => $onu->name ?? $onu->sn,
+                'status' => $onu->status,
+                'signal_rx' => $onu->signal_rx,
+                'address' => $onu->address,
+                'latitude' => $onu->latitude,
+                'longitude' => $onu->longitude,
+            ];
+            $polyline[] = [$onu->latitude, $onu->longitude];
+        }
+
+        if ($odb) {
+            $napLat = $odb->latitude ?? ($onu->latitude ? $onu->latitude + 0.0015 : null);
+            $napLng = $odb->longitude ?? ($onu->longitude ? $onu->longitude + 0.0012 : null);
+
+            $hops[] = [
+                'type' => 'odb',
+                'id' => $odb->id,
+                'external_id' => $odb->external_id,
+                'label' => $odb->name,
+                'pon_port' => $odb->pon_port,
+                'total_ports' => $odb->total_ports,
+                'used_ports' => $odb->used_ports,
+                'zone' => $odb->zone?->name,
+                'latitude' => $napLat,
+                'longitude' => $napLng,
+            ];
+
+            if ($napLat && $napLng) {
+                $polyline[] = [$napLat, $napLng];
+            }
+        }
+
+        if ($olt) {
+            $oltLat = $olt->latitude ?? -6.76200;
+            $oltLng = $olt->longitude ?? -79.83500;
+
+            $hops[] = [
+                'type' => 'olt',
+                'id' => $olt->id,
+                'external_id' => $olt->external_id,
+                'label' => $olt->name,
+                'ip' => $olt->ip,
+                'hardware' => $olt->olt_hardware_version,
+                'board' => $onu->board,
+                'port' => $onu->port,
+                'onu_number' => $onu->onu_number,
+                'latitude' => $oltLat,
+                'longitude' => $oltLng,
+            ];
+
+            if ($oltLat && $oltLng) {
+                $polyline[] = [$oltLat, $oltLng];
+            }
+        }
+
+        return ApiResponse::success([
+            'onu_id' => $onu->unique_external_id,
+            'sn' => $onu->sn,
+            'status' => $onu->status,
+            'distance_m' => $onu->distance_m,
+            'hops' => $hops,
+            'polyline' => $polyline,
+        ]);
+    }
+
     public function showBySn(string $sn): JsonResponse
     {
         $onuFromDb = SmartOltOnu::with(['olt', 'zone', 'odb'])
