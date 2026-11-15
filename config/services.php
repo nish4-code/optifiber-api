@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'smartolt' => [
+        'mode' => env('API_MODE', 'development'),
+        'base_url' => env('SMARTOLT_BASE_URL', 'https://demo.smartolt.com/api'),
+        'api_token' => env('SMARTOLT_API_TOKEN'),
+        'timeout' => (int) env('SMARTOLT_TIMEOUT', 15),
+        'retry_attempts' => (int) env('SMARTOLT_RETRY_ATTEMPTS', 3),
+        'cache_ttl' => (int) env('SMARTOLT_CACHE_TTL', 300),
+    ],
+
 ];
