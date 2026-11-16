@@ -16,8 +16,12 @@ class SmartOltOlt extends Model
         'external_id',
         'name',
         'ip',
+        'telnet_port',
+        'snmp_port',
         'hardware_version',
         'status',
+        'latitude',
+        'longitude',
         'metrics',
         'last_synced_at',
     ];
@@ -25,6 +29,10 @@ class SmartOltOlt extends Model
     protected function casts(): array
     {
         return [
+            'telnet_port' => 'integer',
+            'snmp_port' => 'integer',
+            'latitude' => 'float',
+            'longitude' => 'float',
             'metrics' => 'array',
             'last_synced_at' => 'datetime',
         ];
@@ -32,6 +40,11 @@ class SmartOltOlt extends Model
 
     public function onus(): HasMany
     {
-        return $this->hasMany(SmartOltOnu::class);
+        return $this->hasMany(SmartOltOnu::class, 'smartolt_olt_id');
+    }
+
+    public function odbs(): HasMany
+    {
+        return $this->hasMany(SmartOltOdb::class, 'smartolt_olt_id');
     }
 }

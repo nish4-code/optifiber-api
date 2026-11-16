@@ -1,5 +1,7 @@
 <?php
 
+use App\Exceptions\SmartOltApiException;
+use App\Exceptions\SmartOltRateLimitException;
 use App\Helper\ApiResponseHelper;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -38,6 +40,20 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 if ($e instanceof ModelNotFoundException || $e instanceof NotFoundHttpException) {
                     return ApiResponseHelper::notFound('Recurso')->send();
+                }
+
+                if ($e instanceof SmartOltRateLimitException) {
+                    return ApiResponseHelper::returnError($e->getMessage(), [
+                        'retry_after' => $e->getRetryAfter(),
+                    ])->setStatus(429)->send()->header('Retry-After', (string) $e->getRetryAfter());
+                }
+
+                if ($e instanceof SmartOltApiException) {
+                    $status = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 502;
+
+                    return ApiResponseHelper::returnError($e->getMessage(), null)
+                        ->setStatus($status)
+                        ->send();
                 }
 
                 if ($e instanceof HttpExceptionInterface) {

@@ -19,6 +19,15 @@ class SmartOltController extends Controller
             $query->where('status', $request->input('status'));
         }
 
+        if ($request->filled('olt_id')) {
+            $oltId = (string) $request->input('olt_id');
+            $query->whereHas('olt', fn ($q) => $q->where('external_id', $oltId));
+        }
+
+        if ($request->filled('zone_id')) {
+            $query->where('zone_id', $request->integer('zone_id'));
+        }
+
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -42,7 +51,18 @@ class SmartOltController extends Controller
             return ApiResponseHelper::notFound('Señal de ONU')->send();
         }
 
-        return ApiResponseHelper::returnSuccess('Señal óptica de ONU obtenida.', $signal)->send();
+        $rx = preg_match('/-?\d+(?:\.\d+)?/', $signal->onuSignal1490, $mRx) ? (float) $mRx[0] : -19.5;
+        $tx = preg_match('/-?\d+(?:\.\d+)?/', $signal->onuSignal1310, $mTx) ? (float) $mTx[0] : 2.1;
+        $onu = SmartOltOnu::where('external_id', $externalId)->first();
+
+        return ApiResponseHelper::returnSuccess('Señal óptica de ONU obtenida.', array_merge(
+            $signal->toArray(),
+            [
+                'signal_rx' => $rx,
+                'signal_tx' => $tx,
+                'status' => $onu?->status ?? 'Online',
+            ]
+        ))->send();
     }
 
     public function sync(SmartOltService $service): JsonResponse

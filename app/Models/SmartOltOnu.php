@@ -20,15 +20,31 @@ class SmartOltOnu extends Model
         'sn',
         'name',
         'smartolt_olt_id',
+        'zone_id',
+        'odb_id',
+        'pon_type',
         'board',
         'port',
         'onu_number',
+        'onu_type_id',
+        'onu_type_name',
         'zone',
         'odb',
         'status',
+        'administrative_status',
+        'catv_status',
+        'signal_value',
+        'signal_1310',
+        'signal_1490',
         'signal_rx',
         'signal_tx',
         'distance_m',
+        'mode',
+        'vlan',
+        'address',
+        'latitude',
+        'longitude',
+        'extra_data',
         'last_synced_at',
     ];
 
@@ -39,6 +55,10 @@ class SmartOltOnu extends Model
             'signal_rx' => 'float',
             'signal_tx' => 'float',
             'distance_m' => 'integer',
+            'vlan' => 'integer',
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'extra_data' => 'array',
             'last_synced_at' => 'datetime',
         ];
     }
@@ -46,6 +66,16 @@ class SmartOltOnu extends Model
     public function olt(): BelongsTo
     {
         return $this->belongsTo(SmartOltOlt::class, 'smartolt_olt_id');
+    }
+
+    public function zoneRecord(): BelongsTo
+    {
+        return $this->belongsTo(SmartOltZone::class, 'zone_id');
+    }
+
+    public function odbBox(): BelongsTo
+    {
+        return $this->belongsTo(SmartOltOdb::class, 'odb_id');
     }
 
     public function customer(): HasOne

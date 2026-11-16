@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             FiberColorSeeder::class,
             ZoneSeeder::class,
             DemoNetworkSeeder::class,
+            SmartOltSeeder::class,
         ]);
 
         $smartOltService->syncToDatabase();

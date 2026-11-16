@@ -36,9 +36,13 @@ return [
     ],
 
     'smartolt' => [
-        'base_url' => rtrim(env('SMARTOLT_BASE_URL'), '/'),
+        'mode' => env('API_MODE', env('SMARTOLT_MOCK_MODE', true) ? 'development' : 'production'),
+        'base_url' => rtrim((string) env('SMARTOLT_BASE_URL', 'https://demo.smartolt.com/api'), '/'),
         'api_key' => env('SMARTOLT_API_KEY'),
+        'api_token' => env('SMARTOLT_API_TOKEN', env('SMARTOLT_API_KEY')),
         'mock_mode' => (bool) env('SMARTOLT_MOCK_MODE', true),
+        'timeout' => (int) env('SMARTOLT_TIMEOUT', 15),
+        'retry_attempts' => (int) env('SMARTOLT_RETRY_ATTEMPTS', 3),
         'cache_ttl' => (int) env('SMARTOLT_CACHE_TTL', 300),
     ],
 
