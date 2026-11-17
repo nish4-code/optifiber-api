@@ -25,6 +25,8 @@ class ZoneController extends Controller
             'description' => 'nullable|string',
             'center_lat' => 'nullable|numeric',
             'center_lng' => 'nullable|numeric',
+            'polygon' => 'nullable|array|min:3',
+            'polygon.*' => 'array|size:2',
         ]);
 
         $zone = Zone::create($validated);
@@ -48,6 +50,8 @@ class ZoneController extends Controller
             'description' => 'nullable|string',
             'center_lat' => 'nullable|numeric',
             'center_lng' => 'nullable|numeric',
+            'polygon' => 'nullable|array|min:3',
+            'polygon.*' => 'array|size:2',
         ]);
 
         $zone->update($validated);

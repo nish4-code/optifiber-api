@@ -16,6 +16,7 @@ class Zone extends Model
         'description',
         'center_lat',
         'center_lng',
+        'polygon',
     ];
 
     protected function casts(): array
@@ -23,6 +24,7 @@ class Zone extends Model
         return [
             'center_lat' => 'float',
             'center_lng' => 'float',
+            'polygon' => 'array',
         ];
     }
 
